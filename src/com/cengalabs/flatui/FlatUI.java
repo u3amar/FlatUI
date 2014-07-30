@@ -11,7 +11,6 @@ import android.graphics.drawable.PaintDrawable;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.View;
 
 /**
  * This class contains some util methods and keeps theme constants.

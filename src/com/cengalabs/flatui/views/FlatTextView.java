@@ -13,91 +13,102 @@ import com.cengalabs.flatui.FlatUI;
 import com.cengalabs.flatui.R;
 
 /**
- * User: eluleci
- * Date: 24.10.2013
- * Time: 21:09
+ * User: eluleci Date: 24.10.2013 Time: 21:09
  */
-public class FlatTextView extends TextView implements Attributes.AttributeChangeListener {
+public class FlatTextView extends TextView implements Attributes.AttributeChangeListener
+{
 
-    private Attributes attributes;
+	private Attributes attributes;
 
-    private int textColor = 2;
-    private int backgroundColor = Attributes.INVALID;
-    private int customBackgroundColor = Attributes.INVALID;
+	private int textColor = 2;
+	private int backgroundColor = Attributes.INVALID;
+	private int customBackgroundColor = Attributes.INVALID;
 
-    private boolean hasOwnTextColor;
+	private boolean hasOwnTextColor;
 
-    public FlatTextView(Context context) {
-        super(context);
-        init(null);
-    }
+	public FlatTextView(Context context)
+	{
+		super(context);
+		init(null);
+	}
 
-    public FlatTextView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init(attrs);
-    }
+	public FlatTextView(Context context, AttributeSet attrs)
+	{
+		super(context, attrs);
+		init(attrs);
+	}
 
-    public FlatTextView(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
-        init(attrs);
-    }
+	public FlatTextView(Context context, AttributeSet attrs, int defStyle)
+	{
+		super(context, attrs, defStyle);
+		init(attrs);
+	}
 
-    private void init(AttributeSet attrs) {
+	private void init(AttributeSet attrs)
+	{
+		if (attributes == null)
+			attributes = new Attributes(this);
 
-        if (attributes == null)
-            attributes = new Attributes(this);
+		if (attrs != null)
+		{
+			// getting android default tags for textColor and textColorHint
+			hasOwnTextColor = attrs.getAttributeValue(FlatUI.androidStyleNameSpace, "textColor") != null;
 
-        if (attrs != null) {
+			TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.FlatTextView);
 
-            // getting android default tags for textColor and textColorHint
-            hasOwnTextColor = attrs.getAttributeValue(FlatUI.androidStyleNameSpace, "textColor") != null;
+			// getting common attributes
+			int customTheme = a.getResourceId(R.styleable.FlatTextView_theme, Attributes.DEFAULT_THEME);
+			attributes.setThemeSilent(customTheme, getResources());
 
-            TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.FlatTextView);
+			attributes.setFontFamily(a.getString(R.styleable.FlatTextView_fontFamily));
+			attributes.setFontWeight(a.getString(R.styleable.FlatTextView_fontWeight));
+			attributes.setFontExtension(a.getString(R.styleable.FlatTextView_fontExtension));
 
-            // getting common attributes
-            int customTheme = a.getResourceId(R.styleable.FlatTextView_theme, Attributes.DEFAULT_THEME);
-            attributes.setThemeSilent(customTheme, getResources());
+			attributes.setRadius(a.getDimensionPixelSize(R.styleable.FlatTextView_cornerRadius, Attributes.globalRadius));
+			attributes.setBorderWidth(a.getDimensionPixelSize(R.styleable.FlatTextView_borderWidth, 0));
 
-            attributes.setFontFamily(a.getString(R.styleable.FlatTextView_fontFamily));
-            attributes.setFontWeight(a.getString(R.styleable.FlatTextView_fontWeight));
-            attributes.setFontExtension(a.getString(R.styleable.FlatTextView_fontExtension));
+			// getting view specific attributes
+			textColor = a.getInt(R.styleable.FlatTextView_textColor, textColor);
+			backgroundColor = a.getInt(R.styleable.FlatTextView_backgroundColor, backgroundColor);
+			customBackgroundColor = a.getInt(R.styleable.FlatTextView_customBackgroundColor, customBackgroundColor);
 
-            attributes.setRadius(a.getDimensionPixelSize(R.styleable.FlatTextView_cornerRadius, Attributes.globalRadius));
-            attributes.setBorderWidth(a.getDimensionPixelSize(R.styleable.FlatTextView_borderWidth, 0));
+			a.recycle();
+		}
 
-            // getting view specific attributes
-            textColor = a.getInt(R.styleable.FlatTextView_textColor, textColor);
-            backgroundColor = a.getInt(R.styleable.FlatTextView_backgroundColor, backgroundColor);
-            customBackgroundColor = a.getInt(R.styleable.FlatTextView_customBackgroundColor, customBackgroundColor);
+		GradientDrawable gradientDrawable = new GradientDrawable();
+		if (backgroundColor != Attributes.INVALID)
+		{
+			gradientDrawable.setColor(attributes.getColor(backgroundColor));
+		}
+		else if (customBackgroundColor != Attributes.INVALID)
+		{
+			gradientDrawable.setColor(customBackgroundColor);
+		}
+		else
+		{
+			gradientDrawable.setColor(Color.TRANSPARENT);
+		}
+		gradientDrawable.setCornerRadius(attributes.getRadius());
+		gradientDrawable.setStroke(attributes.getBorderWidth(), attributes.getColor(textColor));
+		setBackgroundDrawable(gradientDrawable);
 
-            a.recycle();
-        }
+		// setting the text color only if there is no android:textColor attribute used
+		if (!hasOwnTextColor)
+			setTextColor(attributes.getColor(textColor));
 
-        GradientDrawable gradientDrawable = new GradientDrawable();
-        if (backgroundColor != Attributes.INVALID) {
-            gradientDrawable.setColor(attributes.getColor(backgroundColor));
-        } else if (customBackgroundColor != Attributes.INVALID) {
-            gradientDrawable.setColor(customBackgroundColor);
-        } else {
-            gradientDrawable.setColor(Color.TRANSPARENT);
-        }
-        gradientDrawable.setCornerRadius(attributes.getRadius());
-        gradientDrawable.setStroke(attributes.getBorderWidth(), attributes.getColor(textColor));
-        setBackgroundDrawable(gradientDrawable);
+		Typeface typeface = FlatUI.getFont(getContext(), attributes);
+		if (typeface != null)
+			setTypeface(typeface);
+	}
 
-        // setting the text color only if there is no android:textColor attribute used
-        if (!hasOwnTextColor) setTextColor(attributes.getColor(textColor));
+	public Attributes getAttributes()
+	{
+		return attributes;
+	}
 
-        Typeface typeface = FlatUI.getFont(getContext(), attributes);
-        if (typeface != null) setTypeface(typeface);
-    }
-
-    public Attributes getAttributes() {
-        return attributes;
-    }
-
-    @Override
-    public void onThemeChange() {
-        init(null);
-    }
+	@Override
+	public void onThemeChange()
+	{
+		init(null);
+	}
 }

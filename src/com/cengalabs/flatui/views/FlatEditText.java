@@ -106,7 +106,7 @@ public class FlatEditText extends EditText implements Attributes.AttributeChange
 		setBackgroundDrawable(backgroundDrawable);
 
 		if (!hasOwnHintColor)
-			setHintTextColor(attributes.getColor(3));
+			setHintTextColor(Color.GRAY);
 
 		if (attributes.getTextAppearance() == 1)
 			setTextColor(attributes.getColor(0));
